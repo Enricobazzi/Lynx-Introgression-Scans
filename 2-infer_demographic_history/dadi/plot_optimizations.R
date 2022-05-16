@@ -16,7 +16,7 @@ full_df <- data.frame()
 
 for(r in 1:20){
   print(r)
-  filename <- paste0("~/Documents/Introgression/dadi/tables/", pops, ".",
+  filename <- paste0("tables/", pops, ".",
                      model, ".optimized.r_", r, ".txt")
   if(file.exists(filename) == "FALSE") {
     next

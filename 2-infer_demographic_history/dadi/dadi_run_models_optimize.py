@@ -88,9 +88,12 @@ import my_models
 parser = argparse.ArgumentParser()
 parser.add_argument("model", type=str,
                     help="name of the model as defined in my_models.py")
+parser.add_argument("pops", type=str,
+                    help="population abbreviations of pair chosen")
 args = parser.parse_args()
 
 chosen_model = args.model
+pops = args.pops
 
 #===========================================================================
 # Import data to create joint-site frequency spectrum
@@ -107,11 +110,11 @@ dd = dadi.Misc.make_data_dict_vcf(datafile, popfile)
 
 #**************
 #pop_ids is a list which should match the populations headers of your SNPs file columns
-pop_ids = ['sm','ki']
+pop_ids = pops.split("_")
 
 #**************
 #projection sizes, in ALLELES not individuals
-proj = [19,13]
+proj = [38,26]
 
 #Convert this dictionary into folded AFS object
 #[polarized = False] creates folded spectrum object
