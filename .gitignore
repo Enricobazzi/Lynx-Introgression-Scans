@@ -6,3 +6,9 @@
 # ds_store
 **/.DS_Store
 
+# dadi garbage
+2-infer_demographic_history/dadi/__pycache__
+2-infer_demographic_history/dadi/data
+2-infer_demographic_history/dadi/plots
+2-infer_demographic_history/dadi/tables
+2-infer_demographic_history/dadi/junk
