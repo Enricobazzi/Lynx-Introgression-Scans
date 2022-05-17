@@ -83,6 +83,15 @@ for vcf in $(cat lp_ll_introgression_vcfs.list)
 done
 ```
 
-## Variant Filtering
+## Standard Variant Filtering
 
+The following variants were filtered from the VCF generated during the calling:
 
+(1) Variants from Repetitive/Low mappability regions (defined by the reference genome annotation)
+(2) Indels + Non-biallelic variants
+(3) Non-variant SNPs (allele frequency = 1)
+(4) and (5) Standard quality filters, as GATK standard practices
+
+This was performed running a customized script (lp_ll_introgression_vcf_filters_1-5.sh) that uses a combination of bedtools, bcftools and gatk.
+
+An additional custom script (summary_table_filters_1-5.sh) was then run to extract a table summarizing the filtering process, indicating how many variants were filtered (f_vars) and how many variants are left (e_vars) at each step.
