@@ -42,11 +42,11 @@ cd /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_bams
 ls *er.bam | grep -E "ll|lp" | grep -E "ca|sm|ya|vl|ki|ur" | grep -vE "ca_0249|ca_0253" > lp_ll_introgression.bamlist
 ```
 
-From our previous work we have already generated BAM files for each of these samples (yay!), generated using the Canada lynx assembly as the reference genome (mLynCan4_v1.p; GCA_007474595.1; Rhie et al., 2021).
+From our previous work we have already generated BAM files for each of these samples (yay!), generated using the Canada lynx assembly as the reference genome (mLynCan4_v1.p; GCA_007474595.1; [Rhie et al., 2021](http://www.nature.com/articles/s41586-021-03451-0)).
 
 To generate a VCF file from these BAMs, we performed variant calling on each scaffold in parallel, while additionally dividing all of the bigger scaffolds (18 autosomic + X) into 80 chunks each. This way more jobs have to be sbatched, but we have no memory or time problems.
 
-We called scaffolds that could be called without being divided into chunks using the script perchr_haplotypecaller.sh
+We called scaffolds that could be called without being divided into chunks using the script [perchr_haplotypecaller.sh](./perchr_haplotypecaller.sh)
 
 ```{bash}
 # short non-autosomic (??) scaffolds 
@@ -58,7 +58,7 @@ for chr in ${chr_list[@]}
 done
 ```
 
-Chunk divided scaffolds were then called using the script perchunk_haplotypecaller.sh
+Chunk divided scaffolds were then called using the script [perchunk_haplotypecaller.sh](./perchunk_haplotypecaller.sh)
 
 ```{bash}
 # big autosomic scaffolds (only 10 at the time for cluster job submission limitations):
@@ -119,9 +119,9 @@ The following variants were filtered from the VCF generated during the calling:
 (3) Non-variant SNPs (allele frequency = 1)
 (4) and (5) Standard quality filters, as GATK standard practices
 
-This was performed running a customized script (lp_ll_introgression_vcf_filters_1-5.sh) that uses a combination of bedtools, bcftools and gatk.
+This was performed running a customized [script](./lp_ll_introgression_vcf_filters_1-5.sh) that uses a combination of bedtools, bcftools and gatk.
 
-An additional custom script (summary_table_filters_1-5.sh) was then run to extract a table summarizing the filtering process, indicating how many variants were filtered (f_vars) and how many variants are left (e_vars) at each step.
+An additional custom [script](./summary_table_filters_1-5.sh) was then run to extract a table summarizing the filtering process, indicating how many variants were filtered (f_vars) and how many variants are left (e_vars) at each step.
 
 ------------------------------------------------------------------------
 
@@ -130,12 +130,13 @@ An additional custom script (summary_table_filters_1-5.sh) was then run to extra
 Phasing of variants will be conducted with a pipeline that first uses WhatsAp v.1.1 to create haplogroups (??) from individual read and population data. The output of WhatsAp is then passed to SHAPEIT v.4.2.1 that will infer the haplotypes of each sample for each chromosome.
 
 All this is based on what Lorena already ran for the samples mapped to the *Felix catus* reference genome:
+
 [Lorena - Phasing](https://github.com/lorenalorenzo/Phasing)
 
 ### Splitting the VCF
 
-To divide my VCF into single population VCFs and further dividing those into single chromosome VCFs I ran a custom bash script (pop_chr_vcf_split.sh). The populations are defined as at the beginning of this md. The chromosomes I decided to keep are the larger ones, 18 autosomes and the X chromosome.
+To divide my VCF into single population VCFs and further dividing those into single chromosome VCFs I ran a custom bash [script](./pop_chr_vcf_split.sh). The populations are defined as at the beginning of this md. The chromosomes I decided to keep are the larger ones, 18 autosomes and the X chromosome.
 
 ### Generate genetic map
 
-To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom script (make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT).
+To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT).
