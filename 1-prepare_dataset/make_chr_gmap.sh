@@ -20,12 +20,3 @@ for chr in ${chr_list[@]}
   awk 'BEGIN{print "pos", "chr", "cM"} {sum+=$4} {print $1, $2, sum}' |
   tr ' ' '\t' > ${OUTdir}/${chr}.gmap
 done
-
-
-
-
-
-
-
-
-
