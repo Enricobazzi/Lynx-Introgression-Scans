@@ -12,6 +12,7 @@ The first step of running dadi is defining the demographic models you want to te
 To do so, you have to write them in the form of python functions. Most info on how to do that can be found at:
 
 [dadi - home](https://dadi.readthedocs.io/en/latest/)
+
 [dadi - model specifying](https://dadi.readthedocs.io/en/latest/user-guide/specifying-a-model/)
 
 For our study, we have decided to test 6 different demographic scenarios for our two populations:
@@ -34,13 +35,13 @@ Using a customized version of the dadi_pipeline script [dadi_run_models_optimize
 
 Initial parameters are first selected at random within the bounds defined in [dadi_run_models_optimize.py](./dadi_run_models_optimize.py), and then each replicate (see below) will use last replicate's optimized parameters as the initial parameters.
 
-The first round will have 10 consecutive replicates, each of which will use a maximum of 3 iterations each, and perturbing the initial parameters ([dadi.Misc.perturb_params](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params)) 3-fold.
+The first round will have 10 consecutive replicates, each of which will use a maximum of 3 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 3-fold.
 
-The second round will have 20 consecutive replicates, each of which will use a maximum of 5 iterations each, and perturbing the initial parameters ([dadi.Misc.perturb_params](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params)) 2-fold.
+The second round will have 20 consecutive replicates, each of which will use a maximum of 5 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 2-fold.
 
 The third round will have 30 consecutive replicates, each of which will use a maximum of 10 iterations each, and perturbing the initial parameters ([dadi.Misc.perturb_params](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params)) 2-fold.
 
-The fourth round will have 40 consecutive replicates, each of which will use a maximum of 15 iterations each, and perturbing the initial parameters ([dadi.Misc.perturb_params](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params)) 1-fold.
+The fourth round will have 40 consecutive replicates, each of which will use a maximum of 15 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 1-fold.
 
 **Before running dadi_run_models_optimize.py, make sure the proper input data, projections and grid sizes are defined in the script**
 
@@ -56,9 +57,9 @@ The results from the 20 runs will all go into a single table, in which the heade
 ./split_optimized_table.sh <model_name> <pop_pair>
 ```
 To visualize the results of the optimization process I have wrote an R [script](./plot_optimizations.R) that takes the model name and the population pair and will output 3 plots:
- - the lolli_plot will have the log-likelihood of each all the 20 runs' 100 replicates, color coded by round, to show the trajectory of the        log-likelihood across each run
- - lolli_fourth_panels_plot will again plot the log-likelihood of the 20 runs, but only from the fourth round of optimization, as a line plot,     to check if the optimization has converged
- - lolli_fourth_together_plot will show the log-likelihood from the fourth round of all of the 20 runs together, as a dot plot, to check if        there are any particular runs that behave differently at convergence
+ - the *lolli_plot* will have the log-likelihood of each all the 20 runs' 100 replicates, color coded by round, to show the trajectory of the log-likelihood across each run
+ - *lolli_fourth_panels_plot* will again plot the log-likelihood of the 20 runs, but only from the fourth round of optimization, as a line plot, to check if the optimization has converged
+ - *lolli_fourth_together_plot* will show the log-likelihood from the fourth round of all of the 20 runs together, as a dot plot, to check if there are any particular runs that behave differently at convergence
 ```{bash}
 Rscript plot_optimizations.R <model_name> <pop_pair>
 ```

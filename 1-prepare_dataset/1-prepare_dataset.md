@@ -127,7 +127,7 @@ An additional custom [script](./summary_table_filters_1-5.sh) was then run to ex
 
 ## Phasing variants
 
-Phasing of variants will be conducted with a pipeline that first uses WhatsAp v.1.1 to create haplogroups (??) from individual read and population data. The output of WhatsAp is then passed to SHAPEIT v.4.2.1 that will infer the haplotypes of each sample for each chromosome.
+Phasing of variants will be conducted with a pipeline that first uses WhatsHap v.1.1 to create phase sets from individual read and population data. The output of WhatsHap is then passed to SHAPEIT v.4.2.1 that will infer the haplotypes of each sample for each chromosome.
 
 All this is based on what Lorena already ran for the samples mapped to the *Felix catus* reference genome:
 
@@ -140,3 +140,23 @@ To divide my VCF into single population VCFs and further dividing those into sin
 ### Generate genetic map
 
 To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT).
+
+### Generate Phase sets with WhatsHap
+
+For more precise phasing, we first run the software [WhatsHap](https://whatshap.readthedocs.io/en/latest/index.html) ([Martin et al., 2016](https://www.biorxiv.org/content/10.1101/085050v2)) using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#subcommands)).
+
+Phase sets were generated from the VCF of each chromosome of each population by running in parallel a custom [script](./pop_chr_vcf_whatshap.sh).
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
+for pop in ${pop_list[@]}
+ do
+  for chr in ${chr_list[@]}
+   do
+    echo "sbatching whatshap phasing of ${chr} VCF of ${pop}"
+    sbatch pop_chr_vcf_whatshap.sh ${pop} ${chr}
+  done
+done
+```
+
+
