@@ -124,7 +124,7 @@ An additional custom [script](./summary_table_filters_1-5.sh) was then run to ex
 
 ## Phasing variants
 
-Phasing of variants will be conducted with a pipeline that first uses [WhatsHap](https://whatshap.readthedocs.io/en/latest/index.html) ([Martin et al., 2016](https://www.biorxiv.org/content/10.1101/085050v2)) v.1.1 to create phase sets from individual read and population data. The output of WhatsHap is then passed to [SHAPEIT4](https://odelaneau.github.io/shapeit4/) v.4.2.1 ([Delaneau et al., 2019](https://www.nature.com/articles/s41467-019-13225-y)) that will infer the haplotypes of each sample for each chromosome.
+Phasing of variants will be conducted with a pipeline that first uses [WhatsHap](https://whatshap.readthedocs.io/en/latest/index.html) v.1.1 ([Martin et al., 2016](https://www.biorxiv.org/content/10.1101/085050v2)) to create phase sets from individual read and population data. The output of WhatsHap is then passed to [SHAPEIT4](https://odelaneau.github.io/shapeit4/) v.4.2.1 ([Delaneau et al., 2019](https://www.nature.com/articles/s41467-019-13225-y)) that will infer the haplotypes of each sample for each chromosome.
 
 All this is based on what Lorena already ran for the samples mapped to the *Felix catus* reference genome:
 
@@ -140,7 +140,7 @@ To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we
 
 ### Generate Phase sets with WhatsHap
 
-For more precise phasing, we first run the software WhatsHap using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#subcommands)).
+For more precise phasing, we first run the software WhatsHap using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#representation-of-phasing-information-in-vcfs)).
 
 Phase sets were generated from the VCF of each chromosome of each population by running in parallel a custom [script](./pop_chr_vcf_whatshap.sh).
 ```{bash}
