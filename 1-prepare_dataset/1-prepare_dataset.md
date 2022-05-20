@@ -136,7 +136,7 @@ To divide my VCF into single population VCFs and further dividing those into sin
 
 ### Generate genetic map
 
-To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT4).
+To run SHAPEIT4 I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT4).
 
 ### Generate Phase sets with WhatsHap
 
@@ -157,6 +157,22 @@ done
 ```
 *note for the future* : time to run 19-20 samples ranged from ~1 to ~7 hours - adjust sbatch time for faster queues.
 
-### Phase using SHAPEIT
+### Phase using SHAPEIT4
+
+Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_halve_pop_chr_vcf_samples.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will either duplicate the samples of the output of the WhatsHap Phase-Set VCF, or remove the duplicates from the output of the SHAPEIT4 phased VCF, based on specified argument (*duplicate* or *halve*).
+
+I run it for all of the populations and chromosomes.
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
+for pop in ${pop_list[@]}
+ do
+  for chr in ${chr_list[@]}
+   do
+    echo "duplicating whatshap ${pop}'s phase set VCF of ${chr}"
+    ./duplicate_halve_pop_chr_vcf_samples.sh duplicate ${pop} ${chr}
+  done
+done
+```
 
 
