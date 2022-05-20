@@ -16,3 +16,7 @@
 2-infer_demographic_history/dadi/plots
 2-infer_demographic_history/dadi/tables
 2-infer_demographic_history/dadi/junk
+
+# simulations
+3-simulations/plots
+3-simulations/tables
