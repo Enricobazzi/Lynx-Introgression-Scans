@@ -114,10 +114,7 @@ done
 
 The following variants were filtered from the VCF generated during the calling:
 
-(1) Variants from Repetitive/Low mappability regions (defined by the reference genome annotation)
-(2) Indels + Non-biallelic variants
-(3) Non-variant SNPs (allele frequency = 1)
-(4) and (5) Standard quality filters, as GATK standard practices
+(1) Variants from Repetitive/Low mappability regions (defined by the reference genome annotation), (2) Indels + Non-biallelic variants, (3) Non-variant SNPs (allele frequency = 1), (4) and (5) Standard quality filters, as GATK standard practices
 
 This was performed running a customized [script](./lp_ll_introgression_vcf_filters_1-5.sh) that uses a combination of bedtools, bcftools and gatk.
 
@@ -127,7 +124,7 @@ An additional custom [script](./summary_table_filters_1-5.sh) was then run to ex
 
 ## Phasing variants
 
-Phasing of variants will be conducted with a pipeline that first uses WhatsHap v.1.1 to create phase sets from individual read and population data. The output of WhatsHap is then passed to SHAPEIT v.4.2.1 that will infer the haplotypes of each sample for each chromosome.
+Phasing of variants will be conducted with a pipeline that first uses [WhatsHap](https://whatshap.readthedocs.io/en/latest/index.html) ([Martin et al., 2016](https://www.biorxiv.org/content/10.1101/085050v2)) v.1.1 to create phase sets from individual read and population data. The output of WhatsHap is then passed to [SHAPEIT4](https://odelaneau.github.io/shapeit4/) v.4.2.1 ([Delaneau et al., 2019](https://www.nature.com/articles/s41467-019-13225-y)) that will infer the haplotypes of each sample for each chromosome.
 
 All this is based on what Lorena already ran for the samples mapped to the *Felix catus* reference genome:
 
@@ -139,11 +136,11 @@ To divide my VCF into single population VCFs and further dividing those into sin
 
 ### Generate genetic map
 
-To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT).
+To run SHAPEIT I also need to provide a genetic map for the SNPs to phase. As we don't have one, we will manually generate a genetic map by multiplying the physical distance in bp between SNPs and genome wide average recombination rate, which is 1.9 cM/Mbp. By cumulatively summing the multiplication of the physical distance from previous the SNP by 0.0000019, we obtain the cM value of each SNP. This approximation is not ideal but it's the only way we can provide a map. To calculate this I wrote a custom [script](./make_chr_gmap.sh) which will output a gmap table for each chromosome, made of 3 columns: position, chromosome, cM (format useful for SHAPEIT4).
 
 ### Generate Phase sets with WhatsHap
 
-For more precise phasing, we first run the software [WhatsHap](https://whatshap.readthedocs.io/en/latest/index.html) ([Martin et al., 2016](https://www.biorxiv.org/content/10.1101/085050v2)) using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#subcommands)).
+For more precise phasing, we first run the software WhatsHap using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#subcommands)).
 
 Phase sets were generated from the VCF of each chromosome of each population by running in parallel a custom [script](./pop_chr_vcf_whatshap.sh).
 ```{bash}
@@ -158,5 +155,8 @@ for pop in ${pop_list[@]}
   done
 done
 ```
+*note for the future* : time to run 19-20 samples ranged from ~1 to ~7 hours - adjust sbatch time for faster queues.
+
+### Phase using SHAPEIT
 
 
