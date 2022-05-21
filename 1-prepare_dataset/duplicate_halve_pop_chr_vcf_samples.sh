@@ -29,10 +29,11 @@ if [ $switch == "duplicate" ]
   
   # create a new VCF table header (#CHR line)
   # with double the samples (new ones are called the same + "_2")
+  # sed command removes trailing \t 
   echo "adding samples names"
   paste <(grep "#CHR" ${PREfix}.vcf) \
    <(paste -d '_' <(grep "#CHR" ${PREfix}.vcf | tr '\t' '\n' | grep "_") <(yes "2" | head -n ${nsamples}) | 
-     tr '\n' '\t') \
+     tr '\n' '\t') | sed 's/^[ \t]*//;s/[ \t]*$//' \
   >> ${PREfix}_duplicate.vcf
   
   # extract extract sample's genotypes
