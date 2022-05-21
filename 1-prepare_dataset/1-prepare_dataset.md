@@ -143,6 +143,7 @@ To run SHAPEIT4 I also need to provide a genetic map for the SNPs to phase. As w
 For more precise phasing, we first run the software WhatsHap using the --tag=PS (see [link](https://whatshap.readthedocs.io/en/latest/guide.html#representation-of-phasing-information-in-vcfs)).
 
 Phase sets were generated from the VCF of each chromosome of each population by running in parallel a custom [script](./pop_chr_vcf_whatshap.sh).
+
 ```{bash}
 pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
 chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
@@ -155,13 +156,15 @@ for pop in ${pop_list[@]}
   done
 done
 ```
-*note for the future* : time to run 19-20 samples ranged from ~1 to ~7 hours - adjust sbatch time for faster queues.
+
+*note for the future* : time to run 19-20 samples ranged from \~1 to \~7 hours - adjust sbatch time for faster queues.
 
 ### Phase using SHAPEIT4
 
 Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_halve_pop_chr_vcf_samples.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will either duplicate the samples of the output of the WhatsHap Phase-Set VCF, or remove the duplicates from the output of the SHAPEIT4 phased VCF, based on specified argument (*duplicate* or *halve*).
 
 I run it for all of the populations and chromosomes.
+
 ```{bash}
 pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
 chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
@@ -171,6 +174,38 @@ for pop in ${pop_list[@]}
    do
     echo "duplicating whatshap ${pop}'s phase set VCF of ${chr}"
     ./duplicate_halve_pop_chr_vcf_samples.sh duplicate ${pop} ${chr}
+  done
+done
+```
+
+I then need to zip and index each duplicated phase set VCF.
+
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
+for pop in ${pop_list[@]}
+ do
+  for chr in ${chr_list[@]}
+   do
+    echo "zipping ${pop}'s duplicated phase set VCF of ${chr}"
+    bgzip lp_ll_introgression_filtered_${pop}_${chr}_ps_duplicate.vcf
+    echo "indexing ${pop}'s zipped duplicated phase set VCF of ${chr}"
+    bcftools index lp_ll_introgression_filtered_${pop}_${chr}_ps_duplicate.vcf.gz
+  done
+done
+```
+
+The data is now ready to be phased using SHAPEIT4. To do so in parallel, I used a custom made [script](./pop_chr_vcf_shapeit.sh) that runs SHAPEIT4 for each population and chromosome combinations.
+
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
+for pop in ${pop_list[@]}
+ do
+  for chr in ${chr_list[@]}
+   do
+   echo "sbatching SHAPEIT4 phasing of ${chr} VCF of ${pop}"
+   sbatch pop_chr_vcf_shapeit.sh ${pop} ${chr}
   done
 done
 ```
