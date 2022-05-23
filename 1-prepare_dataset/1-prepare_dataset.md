@@ -161,7 +161,7 @@ done
 
 ### Phase using SHAPEIT4
 
-Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_halve_pop_chr_vcf_samples.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will either duplicate the samples of the output of the WhatsHap Phase-Set VCF, or remove the duplicates from the output of the SHAPEIT4 phased VCF, based on specified argument (*duplicate* or *halve*).
+Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_halve_pop_chr_vcf_samples.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will duplicate the samples of the output of the WhatsHap Phase-Set VCF.
 
 I run it for all of the populations and chromosomes.
 
@@ -173,7 +173,7 @@ for pop in ${pop_list[@]}
   for chr in ${chr_list[@]}
    do
     echo "duplicating whatshap ${pop}'s phase set VCF of ${chr}"
-    ./duplicate_halve_pop_chr_vcf_samples.sh duplicate ${pop} ${chr}
+    ./duplicate_pop_chr_vcf.sh ${pop} ${chr}
   done
 done
 ```
@@ -196,6 +196,7 @@ done
 ```
 
 The data is now ready to be phased using SHAPEIT4. To do so in parallel, I used a custom made [script](./pop_chr_vcf_shapeit.sh) that runs SHAPEIT4 for each population and chromosome combinations.
+MCMC iterations were set to "10b,1p,1b,1p,1b,1p,1b,1p,10m" as suggested by the SHAPEIT4 manual.
 
 ```{bash}
 pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
@@ -210,4 +211,20 @@ for pop in ${pop_list[@]}
 done
 ```
 
+*note for the future* : run time is extremely short, between 2 and 15 minutes! - adjust sbatch time for faster queues!
+
+To remove the duplicated samples from the phased VCF I use the same [script](./duplicate_halve_pop_chr_vcf_samples.sh) I used to add them, changing the flag to halve.
+
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+chr_list=($(cat /mnt/netapp1/Store_csebdjgl/reference_genomes/Ref_Genome_LyCa/big_scaffolds.bed | cut -f1))
+for pop in ${pop_list[@]}
+ do
+  for chr in ${chr_list[@]}
+   do
+    echo "removing duplicates from ${pop}'s phased VCF of ${chr}"
+    ./duplicate_halve_pop_chr_vcf_samples.sh halve ${pop} ${chr}
+  done
+done
+```
 
