@@ -161,7 +161,7 @@ done
 
 ### Phase using SHAPEIT4
 
-Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_halve_pop_chr_vcf_samples.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will duplicate the samples of the output of the WhatsHap Phase-Set VCF.
+Because SHAPEIT requires a minimum of 20 samples in order to phase a VCF, we will have to trick it by duplicating the genotypes of our samples. To do this I wrote a custom [script](./duplicate_pop_chr_vcf.sh) based on what [Lorena](https://github.com/lorenalorenzo/Phasing/blob/main/duplicating_for_phasing.sh) did, that will duplicate the samples of the output of the WhatsHap Phase-Set VCF.
 
 I run it for all of the populations and chromosomes.
 
@@ -213,7 +213,7 @@ done
 
 *note for the future* : run time is extremely short, between 2 and 15 minutes! - adjust sbatch time for faster queues!
 
-To remove the duplicated samples from the phased VCF I use the same [script](./duplicate_halve_pop_chr_vcf_samples.sh) I used to add them, changing the flag to halve.
+To remove the duplicated samples from the phased VCF I use a custom made [script](./gt_masker_pop_chr_vcf.sh) that will also remove any GT that was imputed by SHAPEIT4, that I would like to keep as missing data.
 
 ```{bash}
 pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
@@ -223,7 +223,7 @@ for pop in ${pop_list[@]}
   for chr in ${chr_list[@]}
    do
     echo "removing duplicates from ${pop}'s phased VCF of ${chr}"
-    ./duplicate_halve_pop_chr_vcf_samples.sh halve ${pop} ${chr}
+    ./gt_masker_pop_chr_vcf.sh ${pop} ${chr}
   done
 done
 ```
