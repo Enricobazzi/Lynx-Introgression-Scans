@@ -222,7 +222,7 @@ for pop in ${pop_list[@]}
  do
   for chr in ${chr_list[@]}
    do
-    echo "removing duplicates from ${pop}'s phased VCF of ${chr}"
+    echo "removing duplicates and un-imputing GTs from ${pop}'s phased VCF of ${chr}"
     ./gt_masker_pop_chr_vcf.sh ${pop} ${chr}
   done
 done

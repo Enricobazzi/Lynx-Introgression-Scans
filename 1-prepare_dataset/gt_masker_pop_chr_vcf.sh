@@ -54,7 +54,7 @@ for (( c=$START; c<=$END; c++ ))
    else
     echo "joining sample $c with rest"
     paste ${INdir}/${pop}_${chr}.miss.tmp.gts ${INdir}/sample_${c}.miss.tmp.gts \
-     > tmp && mv tmp ${INdir}/${pop}_${chr}.miss.tmp.gts
+     > ${INdir}/${pop}_${chr}.tmp && mv ${INdir}/${pop}_${chr}.tmp ${INdir}/${pop}_${chr}.miss.tmp.gts
   fi
 done
 
@@ -70,7 +70,7 @@ echo "building rest of ${pop}'s phased and masked VCF of chromosome ${chr}"
 
 ncols=($(grep -m1 "#CHR" ${PREfix}_ps_duplicate_phased_masked.vcf | tr '\t' '\n' | grep -v "_" | wc -l))
 
-paste <(grep -v "#" ${imput_VCF} | cut -f1-${ncols}) <(cat ${INdir}/${pop}_${chr}.miss.tmp.gts) >>
+paste <(grep -v "#" ${imput_VCF} | cut -f1-${ncols}) <(cat ${INdir}/${pop}_${chr}.miss.tmp.gts) \
   >> ${PREfix}_ps_duplicate_phased_masked.vcf
 
 # remove tmp files
