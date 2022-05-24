@@ -34,26 +34,26 @@ END=${nsamples}
 
 for (( c=$START; c<=$END; c++ ))
  do
-  echo "extracting sample $c orig GTs"
+  echo "extracting sample_${pop}_${chr} $c orig GTs"
   grep -v "#" ${orig_VCF} | rev | cut -f1-${nsamples} | rev | cut -f$c | cut -d':' -f1 \
-    > ${INdir}/sample_${c}.orig.tmp.gts
+    > ${INdir}/sample_${pop}_${chr}_${c}.orig.tmp.gts
 
-  echo "extracting sample $c imput GTs"
+  echo "extracting sample_${pop}_${chr} $c imput GTs"
   grep -v "#" ${imput_VCF} | rev | cut -f1-${nsamples} | rev | cut -f$c \
-    > ${INdir}/sample_${c}.imput.tmp.gts
+    > ${INdir}/sample_${pop}_${chr}_${c}.imput.tmp.gts
 
-  echo "masking sample $c missing GTs"
-  paste ${INdir}/sample_${c}.orig.tmp.gts ${INdir}/sample_${c}.imput.tmp.gts |
+  echo "masking sample_${pop}_${chr} $c missing GTs"
+  paste ${INdir}/sample_${pop}_${chr}_${c}.orig.tmp.gts ${INdir}/sample_${pop}_${chr}_${c}.imput.tmp.gts |
     awk '{FS="\t"; OFS="\t"; if ($1 != "./.") print $2; else print $1; }' \
-    > ${INdir}/sample_${c}.miss.tmp.gts
+    > ${INdir}/sample_${pop}_${chr}_${c}.miss.tmp.gts
   
   if [ $c == 1 ]
    then
-    echo "creating file for all samples starting with sample $c"
-    cp ${INdir}/sample_${c}.miss.tmp.gts ${INdir}/${pop}_${chr}.miss.tmp.gts
+    echo "creating file for all samples starting with sample_${pop}_${chr} $c"
+    cp ${INdir}/sample_${pop}_${chr}_${c}.miss.tmp.gts ${INdir}/${pop}_${chr}.miss.tmp.gts
    else
-    echo "joining sample $c with rest"
-    paste ${INdir}/${pop}_${chr}.miss.tmp.gts ${INdir}/sample_${c}.miss.tmp.gts \
+    echo "joining sample_${pop}_${chr} $c with rest"
+    paste ${INdir}/${pop}_${chr}.miss.tmp.gts ${INdir}/sample_${pop}_${chr}_${c}.miss.tmp.gts \
      > ${INdir}/${pop}_${chr}.tmp && mv ${INdir}/${pop}_${chr}.tmp ${INdir}/${pop}_${chr}.miss.tmp.gts
   fi
 done
@@ -75,5 +75,4 @@ paste <(grep -v "#" ${imput_VCF} | cut -f1-${ncols}) <(cat ${INdir}/${pop}_${chr
 
 # remove tmp files
 echo "removing temporary files"
-rm ${INdir}/
-*.tmp.gts
+rm ${INdir}/*.tmp.gts
