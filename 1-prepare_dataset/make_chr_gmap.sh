@@ -14,7 +14,7 @@ for chr in ${chr_list[@]}
  do
   echo "calculating genetic map of ${chr} from ${INvcf}"
   echo "${OUTdir}/${chr}.gmap"
-  grep -v "#" ${INvcf} | grep ${chr} | cut -f1,2 |
+  grep -v "#" ${INvcf} | grep -w ${chr} | cut -f1,2 |
   awk '{ print $2, $1 }' |
   awk {'if ( NR==1 ) print $1, $2, 0; else print $1, $2, $1-p, ($1-p)*0.0000019; p=$1'} |
   awk 'BEGIN{print "pos", "chr", "cM"} {sum+=$4} {print $1, $2, sum}' |
