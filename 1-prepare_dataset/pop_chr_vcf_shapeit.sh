@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -t 0-23:30
+#SBATCH -t 0-02:00
 #SBATCH -p thinnodes
 #SBATCH -c 1
 #SBATCH -n 1
