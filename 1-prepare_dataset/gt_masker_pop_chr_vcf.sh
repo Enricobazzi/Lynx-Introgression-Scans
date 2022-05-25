@@ -75,4 +75,4 @@ paste <(grep -v "#" ${imput_VCF} | cut -f1-${ncols}) <(cat ${INdir}/${pop}_${chr
 
 # remove tmp files
 echo "removing temporary files"
-rm ${INdir}/*.tmp.gts
+rm ${INdir}/*${pop}_${chr}*.tmp.gts
