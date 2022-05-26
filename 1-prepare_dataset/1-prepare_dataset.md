@@ -228,3 +228,16 @@ for pop in ${pop_list[@]}
 done
 ```
 
+------------------------------------------------------------------------
+
+## Additional Filtering
+
+Two additional filtering are applied to the data.
+
+One is based on missing genotype information and is implemented to avoid analyzing variants that are not informative enough and might introduce noise into our results.
+
+The other is based on read depth and is implemented to avoid including in the analysis possible paralogs whose SNP profiles do not reflect real genetic diversity.
+
+### Filtering based on Missing Data
+
+I calculated the number of missing genotypes in each population for each SNP in order to draw a distribution of data missingness across the entire genome. Using a bash [script](./pop_vcf_missing_gts.sh) we generate a table that can be then read by a R [script](./filter_missing_data.R)...
