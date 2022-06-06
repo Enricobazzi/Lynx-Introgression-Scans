@@ -228,6 +228,8 @@ for pop in ${pop_list[@]}
 done
 ```
 
+The different single chromosome population VCFs for each populations were combined into a single VCF with data from all of the samples and all of the chromosomes using the software [bcftools merge](https://vcftools.github.io/htslib.html#merge) ([Li 2011](https://academic.oup.com/bioinformatics/article/27/21/2987/217423?login=true)) and [vcftools concat](https://vcftools.github.io/perl_module.html#vcf-concat) ([Danecek et al. 2011](https://academic.oup.com/bioinformatics/article/27/15/2156/402296)) in a custom [script](./combine_phased_vcfs.sh).
+
 ------------------------------------------------------------------------
 
 ## Additional Filtering
@@ -246,7 +248,7 @@ The final decision, based on these results, is to filter out any SNP with **15%*
 
 ### Calculating filter based on Read Depth
 
-Mean read depth in consecutive 10kb windows along the genome was calculated using the software [samtools](http://www.htslib.org/doc/samtools.html) in a custom [script](./pop_depth_10kwin.sh).
+Mean read depth in consecutive 10kb windows along the genome was calculated using the software [samtools](http://www.htslib.org/doc/samtools.html) ([Li et al. 2009](https://academic.oup.com/bioinformatics/article/25/16/2078/204688)) in a custom [script](./pop_depth_10kwin.sh).
 
 ```{bash}
 pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
