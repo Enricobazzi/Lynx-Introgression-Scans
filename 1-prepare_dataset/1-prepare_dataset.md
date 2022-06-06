@@ -238,6 +238,27 @@ One is based on missing genotype information and is implemented to avoid analyzi
 
 The other is based on read depth and is implemented to avoid including in the analysis possible paralogs whose SNP profiles do not reflect real genetic diversity.
 
-### Filtering based on Missing Data
+### Calculating filter based on Missing Data
 
-I calculated the number of missing genotypes in each population for each SNP in order to draw a distribution of data missingness across the entire genome. Using a bash [script](./pop_vcf_missing_gts.sh) we generate a table that can be then read by a R [script](./filter_missing_data.R)...
+I calculated the number of missing genotypes in each population for each SNP in order to draw a distribution of data missingness across the entire genome. Using a bash [script](./pop_vcf_missing_gts.sh) we generate a table. The table can be then read by a R [script](./filter_missing_data.R) that will output a resume table and a graph that help visualize how different limits on missing data affect the number of SNPs filtered.
+
+The final decision, based on these results, is to filter out any SNP with **15%** or more missing data, which results in a loss of ~6% of SNPs in Lynx pardinus, ~2% in Western and Eastern Eurasian lynx and <1% in the Southern Eurasian lynx. Higher missing rate in Lynx pardinus is probably given by the combination of the older sequencing technologies used for some of the samples and the relatively low depth of the rest of the samples.
+
+### Calculating filter based on Read Depth
+
+Mean read depth in consecutive 10kb windows along the genome was calculated using the software [samtools](http://www.htslib.org/doc/samtools.html) in a custom [script](./pop_depth_10kwin.sh).
+
+```{bash}
+pop_list=($(cat /mnt/netapp1/Store_csebdjgl/lynx_genome/lynx_data/LyCaRef_vcfs/lp_ll_introgression/lp_ll_introgression_populations.txt | cut -f2 | sort -u))
+for pop in ${pop_list[@]}
+ do
+  sbatch -t 02-00:00 -n 1 -c 1 --mem=90GB pop_depth_10kwin.sh ${pop}
+done
+```
+
+The script outputs a bed file for each chromosome of each population, reporting the mean read depth for each 10kb window. These bed files can be analysed using an R [script](./filter_rd.R), that calculates and plots the distribution of mean read depth values for all windows. Based on these distributions, the same [script](./filter_rd.R) will also calculate a maximum depth value and output a bed file for each population with the windows to be excluded based on this maximum depth.
+
+The maximum depth is calculated as the overall mean read depth + 0.5 times the standard deviation of mean read depth values. This ends up excluding ~1100 windows in each population, which correspond to around 0.5% of all windows.
+
+### Applying the filters
+
