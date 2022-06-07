@@ -43,10 +43,51 @@ cummiss <- ggplot() +
   ylab("Proportion of SNPs included")+
   theme_minimal()
 
+# write summary table
 write.table(x = freq_miss_table,
             file = paste0("1-prepare_dataset/tables/freq_miss_table.tsv"),
             quote=FALSE,  col.names = T, row.names = FALSE, sep= "\t")
 
+# save plot
 pdf(file = paste0("1-prepare_dataset/plots/cumulative_miss.pdf"), width = 8, height = 4)
 cummiss
 dev.off()
+
+# get bed file of snps to filter in each population and write it
+
+lpa_bed <- miss_table[,c(1,2,3)] %>% filter(lpa >= 3)
+prop_filtered <- NROW(lpa_bed)/NROW(miss_table)
+print(paste("proportion filtered for LPA:", prop_filtered))
+lpa_bed$start <- (lpa_bed$position)-1
+lpa_bed <- lpa_bed[,c(1,4,2)]
+write.table(x = lpa_bed,
+            file = paste0("1-prepare_dataset/tables/lpa_miss_filter.bed"),
+            quote=FALSE,  col.names = F, row.names = FALSE, sep= "\t")
+
+
+wel_bed <- miss_table[,c(1,2,4)] %>% filter(wel >= 3)
+prop_filtered <- NROW(wel_bed)/NROW(miss_table)
+print(paste("proportion filtered for WEL:", prop_filtered))
+wel_bed$start <- (wel_bed$position)-1
+wel_bed <- wel_bed[,c(1,4,2)]
+write.table(x = wel_bed,
+            file = paste0("1-prepare_dataset/tables/wel_miss_filter.bed"),
+            quote=FALSE,  col.names = F, row.names = FALSE, sep= "\t")
+
+eel_bed <- miss_table[,c(1,2,5)] %>% filter(eel >= 3)
+prop_filtered <- NROW(eel_bed)/NROW(miss_table)
+print(paste("proportion filtered for EEL:", prop_filtered))
+eel_bed$start <- (eel_bed$position)-1
+eel_bed <- eel_bed[,c(1,4,2)]
+write.table(x = eel_bed,
+            file = paste0("1-prepare_dataset/tables/eel_miss_filter.bed"),
+            quote=FALSE,  col.names = F, row.names = FALSE, sep= "\t")
+
+sel_bed <- miss_table[,c(1,2,6)] %>% filter(sel >= 2)
+prop_filtered <- NROW(sel_bed)/NROW(miss_table)
+print(paste("proportion filtered for SEL:", prop_filtered))
+sel_bed$start <- (sel_bed$position)-1
+sel_bed <- sel_bed[,c(1,4,2)]
+write.table(x = sel_bed,
+            file = paste0("1-prepare_dataset/tables/sel_miss_filter.bed"),
+            quote=FALSE,  col.names = F, row.names = FALSE, sep= "\t")
