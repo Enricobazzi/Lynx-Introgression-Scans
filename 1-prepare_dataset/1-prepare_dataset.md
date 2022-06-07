@@ -240,11 +240,13 @@ One is based on missing genotype information and is implemented to avoid analyzi
 
 The other is based on read depth and is implemented to avoid including in the analysis possible paralogs whose SNP profiles do not reflect real genetic diversity.
 
+Both these filters are population specific. We are aiming to generate VCFs with data from only a pair of populations, in order to identify windows introgressed from one population into the other. This means the SNPs to be filtered out should be calculated for each population independently and then applied only if the population is included in the VCF for the analysis. Three distinct VCFs will be generated, for each population pair we are aiming for, which are the three Eurasian lynx populations always paired with the Iberian lynx one. 
+
 ### Calculating filter based on Missing Data
 
 I calculated the number of missing genotypes in each population for each SNP in order to draw a distribution of data missingness across the entire genome. Using a bash [script](./pop_vcf_missing_gts.sh) we generate a table. The table can be then read by a R [script](./filter_missing_data.R) that will output a resume table and a graph that help visualize how different limits on missing data affect the number of SNPs filtered.
 
-The final decision, based on these results, is to filter out any SNP with **15%** or more missing data, which results in a loss of ~6% of SNPs in Lynx pardinus, ~2% in Western and Eastern Eurasian lynx and <1% in the Southern Eurasian lynx. Higher missing rate in Lynx pardinus is probably given by the combination of the older sequencing technologies used for some of the samples and the relatively low depth of the rest of the samples.
+The final decision, based on these results, is to filter out any SNP with **15%** or more missing data, which results in a loss of ~5.4% of SNPs in Lynx pardinus, ~1.5% in Western and Eastern Eurasian lynx and <1% in the Southern Eurasian lynx. Higher missing rate in Lynx pardinus is probably given by the combination of the older sequencing technologies used for some of the samples and the relatively low depth of the rest of the samples.
 
 ### Calculating filter based on Read Depth
 
@@ -264,3 +266,20 @@ The maximum depth is calculated as the overall mean read depth + 0.5 times the s
 
 ### Applying the filters
 
+Before we can divide the phased VCF into the three desired population-pair VCFs, we need to quickly adapt the phased VCF's header, that saw most of the important information stripped away during phasing (will give problems in GATK if we skip this). To "fix" the header we simply copy the pre-phased header, add the few new fields added during phasing, and finally add the phased part of the table:
+
+```{bash}
+# take pre-phased header
+grep "##" lp_ll_introgression_LyCa_ref.sorted.filter5.vcf \
+ > lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.vcf
+
+# add info and format added in phasing
+grep -E "##INFO|##FORMAT" lp_ll_introgression_LyCa_ref.sorted.filter5.phased.vcf \
+ >> lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.vcf
+
+# add phased vcf table
+grep -v "##" lp_ll_introgression_LyCa_ref.sorted.filter5.phased.vcf \
+ >> lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.vcf
+```
+
+After this we can use a custom [script](./split_miss_rd_filter.sh) to split the VCF into the three population-pair VCFs and apply the specific missing data and read depth filters.
