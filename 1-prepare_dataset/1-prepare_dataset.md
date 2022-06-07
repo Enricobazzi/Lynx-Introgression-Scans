@@ -120,6 +120,16 @@ This was performed running a customized [script](./lp_ll_introgression_vcf_filte
 
 An additional custom [script](./summary_table_filters_1-5.sh) was then run to extract a table summarizing the filtering process, indicating how many variants were filtered (f_vars) and how many variants are left (e_vars) at each step.
 
+This command was run to generate a BED of SNPs filtered because of low quality
+
+```{bash}
+bedtools subtract \
+ -a /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter3.vcf \
+ -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.vcf |
+ awk '{print $1, $2-1, $2}' | tr ' ' '\t' \
+ > /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/qual_filter.bed
+``` 
+
 ------------------------------------------------------------------------
 
 ## Phasing variants

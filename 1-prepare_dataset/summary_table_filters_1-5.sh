@@ -27,7 +27,6 @@ echo "1,low_map,${ST1end},${ST1filtered}" >> ${OUTlog}
 echo "Repetitive/Low mappability regions - number of variants filtered : $ST1filtered"
 echo "Repetitive/Low mappability regions - final number of variants : $ST1end"
 
-
 ######################################
 ## (2) Indels + Non-biallelic sites ##
 ######################################
