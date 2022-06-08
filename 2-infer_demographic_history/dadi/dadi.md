@@ -29,28 +29,24 @@ The dadi python functions for these models can be found in [my_models.py](./my_m
 
 ## Parameter optimization and model likelihood calculation
 
-After defining the models to test, we can proceed to optimize the parameters, so we can find the values that best fit the data to the model. The strategy we adopt for this task is based on the tool [dadi_pipeline](https://github.com/dportik/dadi_pipeline):
+After defining the models to test, we can proceed to optimize the parameters, so we can find the values that best fit the data to the model. The strategy we adopt for this task is based on the tool [dadi_pipeline](https://github.com/dportik/dadi_pipeline) ([Portik et al. 2017](https://onlinelibrary.wiley.com/doi/10.1111/mec.14266)):
 
-Using a customized version of the dadi_pipeline script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py), select a model (first argument) and a pair of populations  and we use the function Optimize_Routine defined in [Optimize_Functions.py](./Optimize_Functions.py) (from dadi_pipeline) to run 4 rounds of optimization for the selected model, using the [Nelder-Mead](https://dadi.readthedocs.io/en/latest/api/dadi/Inference.html#dadi.Inference.optimize_log_fmin) method of optimization.
+Using a customized version of the dadi_pipeline script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py), select a model (first argument) and a pair of populations  and we use the function Optimize_Routine defined in [Optimize_Functions.py](./Optimize_Functions.py) (from dadi_pipeline) to perform 4 consecutive rounds of optimizations for each model. Each round consisted of multiple replicates, using the parameter estimates from the best scoring replicate (highest log-likelihood) to seed searches in the following round. We used the default settings in dadi_pipeline for each round (replicates = 10, 20, 30, 40; maxiter = 3, 5, 10, 15; fold = 3, 2, 2, 1), and we optimized parameters using the Nelder-Mead method ([optimize_log_fmin](https://dadi.readthedocs.io/en/latest/api/dadi/Inference.html#dadi.Inference.optimize_log_fmin)).
 
-Initial parameters are first selected at random within the bounds defined in [dadi_run_models_optimize.py](./dadi_run_models_optimize.py), and then each replicate (see below) will use last replicate's optimized parameters as the initial parameters.
+To find which [projection](https://dadi.readthedocs.io/en/latest/user-guide/frequently-asked-questions/#1-im-projecting-my-data-down-to-a-smaller-frequency-spectrum-what-sample-sizes-should-i-project-down-to) (downsampling) of our data would yield the highest number of SNPs for a particular population pair, I ran a python [script](./best_projections.py) and used its output to manually edit the optimization [script](./dadi_run_models_optimize.py).
 
-The first round will have 10 consecutive replicates, each of which will use a maximum of 3 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 3-fold.
-
-The second round will have 20 consecutive replicates, each of which will use a maximum of 5 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 2-fold.
-
-The third round will have 30 consecutive replicates, each of which will use a maximum of 10 iterations each, and perturbing the initial parameters ([dadi.Misc.perturb_params](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params)) 2-fold.
-
-The fourth round will have 40 consecutive replicates, each of which will use a maximum of 15 iterations each, and [perturbing](https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.perturb_params) the initial parameters 1-fold.
-
-**Before running dadi_run_models_optimize.py, make sure the proper input data, projections and grid sizes are defined in the script**
-
-The optimization script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py) is run 20 times for each model, to check for convergence of the optimization process.
+The optimization script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py) is then run 20 times for each model, to check for convergence of the optimization process.
 ```{bash}
 # activate dadi environment
 conda activate dadi
-# run 
+# run like this
 for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py <model_name> <pop_pair>; done
+# runs:
+for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_1_a lpa-wel; done
+for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_1_b lpa-wel; done
+for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_a lpa-wel; done
+for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_b lpa-wel; done
+for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_c lpa-wel; done
 ```
 The results from the 20 runs will all go into a single table, in which the header will be repeated, and dividing each run's results. To extract each run into its own table we can run the script [split_optimized_table.sh](./split_optimized_table.sh) for the specific model and population pair
 ```{bash}
