@@ -80,6 +80,7 @@ import argparse
 from datetime import datetime
 import Optimize_Functions
 import my_models
+import subprocess
 
 #===========================================================================
 # Arguments
@@ -101,20 +102,33 @@ pops = args.pops
 
 #**************
 # vcf file
-datafile = 'dummy_dani_variants.vcf.gz'
+vcf_prefix = '/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.'
+vcf_suffix = '.miss.rd_fil.vcf'
+datafilename = [vcf_prefix, pops, vcf_suffix]
+
+datafile = ''.join(datafilename)
+
 # pop file
-popfile = 'dummy_popfile.txt'
+pop_prefix = '/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/'
+pop_suffix = '_dadi_popfile.txt'
+popfilename = [pop_prefix, pops, pop_suffix]
+
+popfile = ''.join(popfilename)
 
 #Create python dictionary from snps file
 dd = dadi.Misc.make_data_dict_vcf(datafile, popfile)
 
 #**************
 #pop_ids is a list which should match the populations headers of your SNPs file columns
-pop_ids = pops.split("_")
+pop_ids = pops.split("-")
 
 #**************
-#projection sizes, in ALLELES not individuals
-proj = [38,26]
+#projection sizes, in ALLELES not individuals (see best_projections.py to know how these are calculated)
+if pops == "lpa-wel":
+    proj_pop1 = 34
+    proj_pop2 = 36
+
+proj = [proj_pop1, proj_pop2]
 
 #Convert this dictionary into folded AFS object
 #[polarized = False] creates folded spectrum object
@@ -174,7 +188,7 @@ prefix = "_".join(pop_ids)
 
 #**************
 # make sure to define your extrapolation grid size (based on your projections)
-pts = [30, 40, 50]
+pts = [50, 60, 70]
 
 #**************
 # set the number of rounds here
