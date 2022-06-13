@@ -6,8 +6,11 @@
 # ds_store
 **/.DS_Store
 
-# pychache
-**/__pychache__
+# pycache
+**/__pycache__/
+
+# jupyter notebook
+.ipynb_checkpoints
 
 # dataset
 1-prepare_dataset/plots
