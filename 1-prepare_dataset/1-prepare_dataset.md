@@ -311,6 +311,57 @@ for pop in wel eel sel
 done
 ```
 
+
+## Calculating Genome Size after Filters
+
+To rescale dadi results into simulated windows we need to know how big is the genome we are observing. As we have filtered many regions away, we need to calculate how many base pairs comprise the genome we are left with after filtering.
+
+Some filters are baseline and applied to all populations: non-autosomic scaffolds, repeats, low quality genotypes and genes. To calculate what regions are left after applying those filters:
+
+```{bash}
+# include only autosomes
+grep -v "Super_Scaffold_10" /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.bed |
+ # remove repetitive regions
+ bedtools subtract -a stdin \
+ -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/repetitive_regions/lc_rep_ALL_scaffold_coord.bed |
+ # remove low quality genotypes
+ bedtools subtract -a stdin \
+ -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/qual_filter.bed |
+ # remove genes
+ bedtools subtract -a stdin \
+ -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/lc4.NCBI.nr_main.genes.plus5000.bed \
+ > /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/baseline_callable_genome.bed
+
+# baseline : awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}' = 616'572'591 bp
+
+# remove genomic regions specific of each population pair:
+for pop in wel eel sel
+ do
+  echo "${pop}"
+  # remove high missing in lpa
+  bedtools subtract \
+   -a /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/baseline_callable_genome.bed \
+   -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/lpa_miss_filter.bed |
+  # remove high missing in eurasian
+   bedtools subtract \
+   -a stdin \
+   -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/${pop}_miss_filter.bed |
+  # remove high read depth in lpa
+   bedtools subtract \
+   -a stdin \
+   -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/lpa_rd_filter.bed |
+  # remove high read depth in eurasian
+   bedtools subtract \
+   -a stdin \
+   -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/${pop}_rd_filter.bed \
+   > /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/lpa-${pop}_callable_genome.bed
+done
+
+# wel : awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}' = 612311182
+# eel : awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}' = 612178519
+# sel : awk -F'\t' 'BEGIN{SUM=0}{ SUM+=$3-$2 }END{print SUM}' = 612085036
+```
+
 ## Deciding window size for detecting Introgression
 
 In order to make some type of inference regarding a window being introgressed from one lineage into another, we need sufficient information to be contained in that window. We aim to have an average of around 200 SNPs per window in order to make our inferences solid.
