@@ -293,3 +293,93 @@ grep -v "##" lp_ll_introgression_LyCa_ref.sorted.filter5.phased.vcf \
 ```
 
 After this we can use a custom [script](./split_miss_rd_filter.sh) to split the VCF into the three population-pair VCFs and apply the specific missing data and read depth filters.
+
+## Removing Genes for Demographic Inference
+
+Demographic inferences are based on neutral genomic history and it's therefore safer to remove all of the genes from the data when running, to avoid any biases that selection might be introducing in allele frequency trajectories across time.
+
+We have a list of genomic coordinates for gene and their surroundings (5kb down- and up-stream) that was generated during our previous work ([Bazzicalupo et al., 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ddi.13439), [Lucena et al., 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/mec.15366)). We filter these from the VCF as follows:
+
+```{bash}
+for pop in wel eel sel
+ do
+  prefix=/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.lpa-${pop}.miss.rd_fil
+  echo "removing genes from lpa-${pop} population pair VCF"
+  bedtools subtract -header -a ${prefix}.vcf \
+   -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/lc4.NCBI.nr_main.genes.plus5000.bed \
+   > ${prefix}.intergenic.vcf
+done
+```
+
+## Deciding window size for detecting Introgression
+
+In order to make some type of inference regarding a window being introgressed from one lineage into another, we need sufficient information to be contained in that window. We aim to have an average of around 200 SNPs per window in order to make our inferences solid.
+
+We explore the number of SNPs present in 10kb and 100kb windows. Bed files of consecutive windows of these sizes along the genome are generated for the autosomic scaffolds using the following bedtools command:
+
+```{bash}
+# 10kb - 228047
+grep -v "Super_Scaffold_10" /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.bed |
+ bedtools makewindows -b stdin -w 10000 > \
+ /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.10kb_wins.noX.bed
+
+# 100kb - there are 22813
+grep -v "Super_Scaffold_10" /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.bed |
+ bedtools makewindows -b stdin -w 100000 > \
+ /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.100kb_wins.noX.bed
+```
+
+Before proceeding with counting the number of SNPs in each window for the two window sizes, we need to check the amount of 10kb windows that are to be excluded for excessive read depth (see Additional Filtering above):
+
+```{bash}
+# check number of 100kb windows that overlap with at least one 10kb window 
+# that has been filtered out (0 SNPs) because of read depth
+bedtools intersect \
+ -a /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.100kb_wins.noX.bed \
+ -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/allpops_rd_filter.bed \
+ -c | awk '{FS="\t"; OFS="\t"; if ($4>0) print $0}' | wc -l
+```
+
+There are a total of 910 of the 22813 100kb windows that overlap the regions filtered because of read depth. If we exclude those 100kb windows we lose around 4% of the genome.
+
+```{bash}
+# extract non-overlapping windows
+bedtools intersect \
+ -a /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.100kb_wins.noX.bed \
+ -b /GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression/filter_beds/allpops_rd_filter.bed \
+ -c | awk '{FS="\t"; OFS="\t"; if ($4==0) print $0}' | cut -f1-3 \
+ > /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.100kb_wins.noX.no_rd.bed
+```
+
+Once filtered, we calculate mean number of SNPs in the 10kb and 100kb windows
+
+```{bash}
+for pop in wel eel sel
+ do
+  vcf=/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.lpa-${pop}.miss.rd_fil.vcf
+  echo "lpa-${pop} pair 10kb:" 
+  # 10kb 
+  bedtools intersect \
+   -a /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.10kb_wins.noX.bed \
+   -b $vcf \
+   -c | awk -v N=4 '{ sum += $N } END { print sum / NR }'
+
+  echo "lpa-${pop} pair 100kb:" 
+  # 100kb 
+  bedtools intersect \
+ -a /GRUPOS/grupolince/reference_genomes/lynx_canadensis/big_scaffolds.100kb_wins.noX.no_rd.bed \
+ -b $vcf \
+ -c | awk -v N=4 '{ sum += $N } END { print sum / NR }'
+done
+```
+
+The results are:
+
+lpa-wel pair 10kb: 25.9727
+lpa-wel pair 100kb: 261.661
+lpa-eel pair 10kb: 25.9331
+lpa-eel pair 100kb: 261.357
+lpa-sel pair 10kb: 26.0593
+lpa-sel pair 100kb: 262.759
+
+The window size of 100kb, although offering less resolution on a genome-wide scale and loosing additional genome due to read depth, seems better suited for our needs, as the average number of reliable SNPs in 100kb windows is >250.
