@@ -1,6 +1,7 @@
 # load libraries
 library(tidyverse)
 library(RColorBrewer)
+options(scipen=500)
 
 # input data folder
 input_folder <- "1-prepare_dataset/tables/rd_beds/"
@@ -48,7 +49,7 @@ for (pop in c("lpa", "wel", "eel", "sel")){
  filtered_pop_rd_bed <- pop_rd_bed %>% filter(mean_rd < maxdepth)
  
  n_rows_filtered <- NROW(pop_rd_bed) - NROW(filtered_pop_rd_bed)
- print(paste("number of windows filtered:", n_rows_filtered))
+ print(paste(pop,":", "number of windows filtered:", n_rows_filtered))
 
  # plot
  rd_plot <- ggplot()+
