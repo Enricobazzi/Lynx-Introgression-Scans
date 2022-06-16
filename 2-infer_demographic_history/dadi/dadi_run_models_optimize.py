@@ -103,7 +103,7 @@ pops = args.pops
 #**************
 # vcf file
 vcf_prefix = '/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.'
-vcf_suffix = '.miss.rd_fil.vcf'
+vcf_suffix = '.miss.rd_fil.intergenic.vcf'
 datafilename = [vcf_prefix, pops, vcf_suffix]
 
 datafile = ''.join(datafilename)
@@ -127,6 +127,14 @@ pop_ids = pops.split("-")
 if pops == "lpa-wel":
     proj_pop1 = 34
     proj_pop2 = 36
+
+if pops == "lpa-eel":
+    proj_pop1 = 34
+    proj_pop2 = 34
+
+if pops == "lpa-sel":
+    proj_pop1 = 34
+    proj_pop2 = 22
 
 proj = [proj_pop1, proj_pop2]
 
@@ -201,13 +209,13 @@ maxiters = [3,5,10,15]
 folds = [3,2,2,1]
 
 if (chosen_model == "model_1_a") or (chosen_model == "model_1_b"):
-# Tsplit, Tbot, iber_a, iber_pr, eura_a, eura_pr, m, m_12, m_21
-	in_lower = [1e-4, 0, 1e-4, 0, 1e-4, 0, 0, 0, 0]
-	in_upper = [100, 1, 10, 1, 10, 1, 40, 40, 40]
+# Tsplit, Tbot, iber_a, iber_pr, eura_a, eura_pr, m, m_12, m_21 
+	in_lower = [1e-4, 1e-4, 1e-4, 0, 1e-4, 0, 0, 0, 0]
+	in_upper = [100, 100, 10, 1, 10, 1, 40, 40, 40]
 elif (chosen_model == "model_2_a") or (chosen_model == "model_2_b") or (chosen_model == "model_2_c") or (chosen_model == "model_2_d"):
-# Tsplit, Tbot, Tbot_a, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21
-	in_lower = [1e-4, 0, 0, 1e-4, 0, 0, 1e-4, 0, 0, 0, 0, 0, 0]
-	in_upper = [100, 1, 1, 10, 1, 1, 10, 1, 40, 40, 40, 40, 40]
+# Tsplit, Tbot2, Tbot1, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21
+	in_lower = [1e-4, 1e-4, 1e-4, 1e-4, 0, 0, 1e-4, 0, 0, 0, 0, 0, 0]
+	in_upper = [100, 100, 100, 10, 1, 1, 10, 1, 40, 40, 40, 40, 40]
 	
 
 #**************
@@ -232,19 +240,19 @@ elif chosen_model == "model_1_b":
 elif chosen_model == "model_2_a":
 	Optimize_Functions.Optimize_Routine(fs, pts, prefix, "model_2_a", my_models.model_2_a, rounds, 13, fs_folded=fs_folded,
                                         reps=reps, maxiters=maxiters, folds=folds, in_lower=in_lower, in_upper=in_upper,
-                                        param_labels = "Tsplit, Tbot, Tbot_a, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
+                                        param_labels = "Tsplit, Tbot2, Tbot1, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
 # Split with continuous symmetric migration, followed by isolation.
 elif chosen_model == "model_2_b":
 	Optimize_Functions.Optimize_Routine(fs, pts, prefix, "model_2_b", my_models.model_2_b, rounds, 13, fs_folded=fs_folded,
                                         reps=reps, maxiters=maxiters, folds=folds, in_lower=in_lower, in_upper=in_upper,
-                                        param_labels = "Tsplit, Tbot, Tbot_a, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
+                                        param_labels = "Tsplit, Tbot2, Tbot1, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
 # Split with continuous asymmetric migration, followed by isolation.
 elif chosen_model == "model_2_c":
 	Optimize_Functions.Optimize_Routine(fs, pts, prefix, "model_2_c", my_models.model_2_c, rounds, 13, fs_folded=fs_folded,
                                         reps=reps, maxiters=maxiters, folds=folds, in_lower=in_lower, in_upper=in_upper,
-                                        param_labels = "Tsplit, Tbot, Tbot_a, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
+                                        param_labels = "Tsplit, Tbot2, Tbot1, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
 # Split with no gene flow, followed by period of continuous symmetrical gene flow.
 elif chosen_model == "model_2_d":
 	Optimize_Functions.Optimize_Routine(fs, pts, prefix, "model_2_d", my_models.model_2_d, rounds, 13, fs_folded=fs_folded,
                                         reps=reps, maxiters=maxiters, folds=folds, in_lower=in_lower, in_upper=in_upper,
-                                        param_labels = "Tsplit, Tbot, Tbot_a, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
+                                        param_labels = "Tsplit, Tbot2, Tbot1, iber_a, iber_pr_a, iber_pr, eura_a, eura_pr, m, ma_12, ma_21, m_12, m_21")
