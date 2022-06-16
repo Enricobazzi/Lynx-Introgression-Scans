@@ -14,7 +14,7 @@ pops = args.pops
 
 # vcf file
 vcf_prefix = '/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.'
-vcf_suffix = '.miss.rd_fil.vcf'
+vcf_suffix = '.miss.rd_fil.intergenic.vcf'
 datafilename = [vcf_prefix, pops, vcf_suffix]
 
 datafile = ''.join(datafilename)
@@ -68,4 +68,4 @@ max_fs_s = max(fs_list)
 max_fs_index = fs_list.index(max_fs_s)
 max_fs_proj = proj_list[max_fs_index]
 
-print("best fs value is : ", max_fs_s, " given by projecting : ", max_fs_proj)
+print("best fs value for population pair", pops, "is :", max_fs_s, "given by projecting:", max_fs_proj)
