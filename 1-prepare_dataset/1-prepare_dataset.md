@@ -294,19 +294,23 @@ grep -v "##" lp_ll_introgression_LyCa_ref.sorted.filter5.phased.vcf \
 
 After this we can use a custom [script](./split_miss_rd_filter.sh) to split the VCF into the three population-pair VCFs and apply the specific missing data and read depth filters.
 
-## Removing Genes for Demographic Inference
+## Removing Genes and X chromosome for Demographic Inference
 
-Demographic inferences are based on neutral genomic history and it's therefore safer to remove all of the genes from the data when running, to avoid any biases that selection might be introducing in allele frequency trajectories across time.
+Demographic inferences are based on neutral genomic history and it's therefore safer to remove all of the genes from the data when running, to avoid any biases that selection might be introducing in allele frequency trajectories across time. The X chromosome is also removed to avoid biases.
 
-We have a list of genomic coordinates for gene and their surroundings (5kb down- and up-stream) that was generated during our previous work ([Bazzicalupo et al., 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ddi.13439), [Lucena et al., 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/mec.15366)). We filter these from the VCF as follows:
+We have a list of genomic coordinates for gene and their surroundings (5kb down- and up-stream) that was generated during our previous work ([Bazzicalupo et al., 2022](https://onlinelibrary.wiley.com/doi/full/10.1111/ddi.13439), [Lucena et al., 2020](https://onlinelibrary.wiley.com/doi/full/10.1111/mec.15366)), as well as a BED file indicating the coordinates of the X chromosome (Super_Scaffold_10).
+
+We filter these from the VCF as follows:
 
 ```{bash}
 for pop in wel eel sel
  do
   prefix=/GRUPOS/grupolince/LyCaRef_vcfs/lp_ll_introgression_LyCa_ref.sorted.filter5.phased.fixed.lpa-${pop}.miss.rd_fil
-  echo "removing genes from lpa-${pop} population pair VCF"
+  echo "removing genes and X chromosome from lpa-${pop} population pair VCF"
   bedtools subtract -header -a ${prefix}.vcf \
-   -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/lc4.NCBI.nr_main.genes.plus5000.bed \
+   -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/lc4.NCBI.nr_main.genes.plus5000.bed |
+   bedtools subtract -header -a stdin \
+   -b /GRUPOS/grupolince/reference_genomes/lynx_canadensis/Super_Scaffold_10.bed \
    > ${prefix}.intergenic.vcf
 done
 ```
