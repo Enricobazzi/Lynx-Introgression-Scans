@@ -43,6 +43,7 @@ for model in model_1_a model_1_b model_2_a model_2_b model_2_c
  do
   for i in {1..20}
    do
+    echo "sbatch ${model} of lpa-wel number ${i}"
     sbatch -t 04-00:00 -n 1 -c 1 --mem=60GB cesga_dadi_opti.sh ${model} lpa-wel ${i}
   done
 done
