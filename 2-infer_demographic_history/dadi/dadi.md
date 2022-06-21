@@ -35,19 +35,19 @@ Using a customized version of the dadi_pipeline script [dadi_run_models_optimize
 
 To find which [projection](https://dadi.readthedocs.io/en/latest/user-guide/frequently-asked-questions/#1-im-projecting-my-data-down-to-a-smaller-frequency-spectrum-what-sample-sizes-should-i-project-down-to) (downsampling) of our data would yield the highest number of SNPs for a particular population pair, I ran a python [script](./best_projections.py) and used its output to manually edit the optimization [script](./dadi_run_models_optimize.py).
 
-The optimization script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py) is then run 20 times for each model, to check for convergence of the optimization process.
+The optimization script [dadi_run_models_optimize.py](./dadi_run_models_optimize.py) is then run 20 times for each model, to check for convergence of the optimization process. For that we use a custom [script](./cesga_dadi_opti.sh) that will run one optimization round, for one model and one population pair:
+
 ```{bash}
-# activate dadi environment
-conda activate dadi
-# run like this
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py <model_name> <pop_pair>; done
-# runs:
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_1_a lpa-wel; done
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_1_b lpa-wel; done
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_a lpa-wel; done
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_b lpa-wel; done
-for i in {1..20};  do   echo "repetition ${i}";   python dadi_run_models_optimize.py model_2_c lpa-wel; done
+# for lpa-wel
+for model in model_1_a model_1_b model_2_a model_2_b model_2_c
+ do
+  for i in {1..20}
+   do
+    sbatch -t 04-00:00 -n 1 -c 1 --mem=60GB cesga_dadi_opti.sh ${model} lpa-wel ${i}
+  done
+done
 ```
+
 The results from the 20 runs will all go into a single table, in which the header will be repeated, and dividing each run's results. To extract each run into its own table we can run the script [split_optimized_table.sh](./split_optimized_table.sh) for the specific model and population pair
 ```{bash}
 ./split_optimized_table.sh <model_name> <pop_pair>
