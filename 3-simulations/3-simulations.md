@@ -11,3 +11,5 @@ The software chosen for the coalescent simulations is [msmove](https://github.co
 
 Msmove offers the advantage of allowing for finer control and tracking of migrant genealogies, useful in our study.
 
+example translation https://dadi.readthedocs.io/en/latest/examples/YRI_CEU/YRI_CEU/
+build ms command https://dadi.readthedocs.io/en/latest/api/dadi/Misc.html#dadi.Misc.ms_command
