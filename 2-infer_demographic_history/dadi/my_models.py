@@ -79,7 +79,7 @@ def model_2_a(params, ns, pts):
  # integrate split with different sizes and symmetric migration rates
     phi = Integration.two_pops(phi, xx, T=Tsplit, nu1=iber_a, nu2=eura_a, m12=m, m21=m)
  # function defining exponential change in Eurasian lynx as function of time since Tbot2
-    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1))
+    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1+Tbot2))
  # integrate first abrupt population change (iber_pr_a) in iberian at time Tbot1, and 
  # the exponential change in Eurasian lynx as function of time between Tbot1 and present, and 
  # asymmetric migration rates ma
@@ -110,7 +110,7 @@ def model_2_b(params, ns, pts):
  # integrate split with different sizes and symmetric migration rates
     phi = Integration.two_pops(phi, xx, T=Tsplit, nu1=iber_a, nu2=eura_a, m12=m, m21=m)
  # function defining exponential change in Eurasian lynx as function of time since Tbot1
-    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1))
+    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1+Tbot2))
  # function defining exponential change as function of time between Tbot1 and Tbot2
     iberc_func_a = lambda t: iber_a*((iber_pr_a*iber_a)/iber_a)**(t/(Tbot1))
  # integrate first exponential population change (iber_func_a) in iberian since Tbot1, and 
@@ -143,7 +143,7 @@ def model_2_c(params, ns, pts):
  # integrate split with different sizes and symmetric migration rates
     phi = Integration.two_pops(phi, xx, T=Tsplit, nu1=iber_a, nu2=eura_a, m12=m, m21=m)
  # function defining exponential change in Eurasian lynx as function of time since Tbot1
-    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1))
+    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/(Tbot1+Tbot2))
  # integrate first abrupt population change (iber_pr_a) in iberian at time Tbot1 and asymmetric migration rates ma
     phi = Integration.two_pops(phi, xx, T=Tbot1, nu1=iber_pr_a*iber_a, nu2=eurac_func, m12=ma_12, m21=ma_21)
  # function defining exponential change as function of time between Tbot2 and present
@@ -176,7 +176,7 @@ def model_2_d(params, ns, pts):
  # function defining exponential change as function of time between Tbot1 and Tbot2
     iberc_func_a = lambda t: iber_a*((iber_pr_a*iber_a)/iber_a)**(t/(Tbot1))
  # function defining exponential change in Eurasian lynx as function of time since Tbot1
-    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/Tbot1)
+    eurac_func = lambda t: eura_a*((eura_pr*eura_a)/eura_a)**(t/Tbot1+Tbot2)
  # integrate first exponential population change (iber_func_a) in iberian at time Tbot1 and asymmetric migration rates ma
     phi = Integration.two_pops(phi, xx, T=Tbot1, nu1=iberc_func_a, nu2=eurac_func, m12=ma_12, m21=ma_21)
  # function defining exponential change as function of time between Tbot2 and present
