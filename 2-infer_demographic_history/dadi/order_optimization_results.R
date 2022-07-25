@@ -29,8 +29,8 @@ format.opti.table <- function(df.row){
   if (raw[1,1] == "model_1_a" | raw[1,1] == "model_1_b") {
     param_list <- c("Tsplit", "Tbot1", "iber_a", "iber_pr", "eura_a", "eura_pr", "m", "m_12", "m_21")
 
-    raw$Tbot2 <- NA
-    raw$iber_pr_a <- NA
+    raw$Tbot2 <- 0
+    raw$iber_pr_a <- 1
     
   } else if (raw[1,1] == "model_2_a" | raw[1,1] == "model_2_b" | raw[1,1] == "model_2_c") {
     param_list <- c("Tsplit", "Tbot2", "Tbot1", "iber_a", "iber_pr_a", "iber_pr", "eura_a", "eura_pr", "m", "ma_12", "ma_21", "m_12", "m_21")
