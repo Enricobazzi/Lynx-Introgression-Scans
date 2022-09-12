@@ -1,4 +1,7 @@
 #!/bin/bash
+# This script will create a copy of the folder containing the scripts for 
+# running an optimization round of dadi and run it for the specified model
+# and population pair, storing its results in the newly created folder
 
 module load cesga/2020 && module load miniconda3/4.11.0
 
