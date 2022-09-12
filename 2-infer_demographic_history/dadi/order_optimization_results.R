@@ -16,7 +16,6 @@ read.opti.table <- function(file){
   colnames(table)[7] <- "parameters"
 
   table$pop_pair <- unlist(strsplit(unlist(strsplit(file, "/"))[1], "_"))[5]
-  
   table$opti_n <- unlist(strsplit(unlist(strsplit(file, "/"))[1], "_"))[6]
   
   return(table)
@@ -31,6 +30,8 @@ format.opti.table <- function(df.row){
 
     raw$Tbot2 <- 0
     raw$iber_pr_a <- 1
+    raw$ma_12 <- 0
+    raw$ma_21 <- 0
     
   } else if (raw[1,1] == "model_2_a" | raw[1,1] == "model_2_b" | raw[1,1] == "model_2_c") {
     param_list <- c("Tsplit", "Tbot2", "Tbot1", "iber_a", "iber_pr_a", "iber_pr", "eura_a", "eura_pr", "m", "ma_12", "ma_21", "m_12", "m_21")
@@ -39,9 +40,9 @@ format.opti.table <- function(df.row){
   table <- raw %>%
     separate(., col=7, sep = ",", into = param_list)
   
-  param_list_short <- c("Tsplit", "Tbot2", "Tbot1", "iber_a", "iber_pr_a", "iber_pr", "eura_a", "eura_pr")
+  param_list_short <- c("Tsplit", "Tbot2", "Tbot1", "iber_a", "iber_pr_a", "iber_pr", "eura_a", "eura_pr", "m", "ma_12", "ma_21", "m_12", "m_21")
   
-  col_order <- c("Model", "pop_pair", "log-likelihood", "theta", param_list_short)
+  col_order <- c("Model", "pop_pair", "opti_n", "Replicate", "log-likelihood", "theta", param_list_short)
   
   table <- table[, col_order]
   
